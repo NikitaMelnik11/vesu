@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Weight Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="images/x-icon"
+    href="https://cdn.icon-icons.com/icons2/2122/PNG/512/weighing_scale_scales_bascule_icon_131297.png">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #50e3c2;
+            --background-color: #f0f4f8;
+            --text-color: #333333;
+            --card-background: #ffffff;
+            --input-border: #e0e0e0;
+            --delete-color: #ff6b6b;
+            --success-color: #5cb85c;
+            --chart-color: #4a90e2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 16px;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            -webkit-appearance: none;
+        }
+
+        input[type="number"]:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:hover {
+            background-color: #3a7bd5;
+        }
+
+        button:active {
+            background-color: #2d62a9;
+        }
+
+        #clearData {
+            background-color: var(--delete-color);
+            margin-top: 12px;
+        }
+
+        #clearData:hover {
+            background-color: #ff5252;
+        }
+
+        #weightList {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .weight-item {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .weight-item span {
+            font-size: 14px;
+        }
+
+        .weight-item button {
+            background-color: var(--delete-color);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .customization h2 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 2px solid var(--input-border);
+        }
+
+        .color-option:active {
+            transform: scale(0.9);
+        }
+
+        #chart {
+            width: 100%;
+            height: 200px;
+        }
+
+        .success-message {
+            background-color: var(--success-color);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .stat-card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 12px;
+            color: var(--text-color);
+            margin-bottom: 4px;
+        }
+
+        .stat-card p {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            .input-group {
+                flex-direction: row;
+            }
+
+            input[type="number"], input[type="date"] {
+                flex: 1;
+            }
+
+            #addWeight {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Mobile Weight Tracker</h1>
+            <div class="success-message" id="successMessage">Weight added successfully!</div>
+            <div class="input-group">
+                <input type="number" id="weightInput" placeholder="Enter weight (kg)" step="0.1" min="0" required>
+                <input type="date" id="dateInput" required>
+                <button id="addWeight">Add</button>
+            </div>
+            <ul id="weightList"></ul>
+            <button id="clearData">Clear All Data</button>
+        </div>
+
+        <div class="card customization">
+            <h2>Customize Theme</h2>
+            <div class="color-picker">
+                <div class="color-option" style="background-color: #4a90e2;" data-color="#4a90e2"></div>
+                <div class="color-option" style="background-color: #50e3c2;" data-color="#50e3c2"></div>
+                <div class="color-option" style="background-color: #ff6b6b;" data-color="#ff6b6b"></div>
+                <div class="color-option" style="background-color: #feca57;" data-color="#feca57"></div>
+                <div class="color-option" style="background-color: #5f27cd;" data-color="#5f27cd"></div>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Current</h3>
+                    <p id="currentWeight">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Lowest</h3>
+                    <p id="lowestWeight">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Highest</h3>
+                    <p id="highestWeight">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Average</h3>
+                    <p id="averageWeight">-</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const weightInput = document.getElementById('weightInput');
+        const dateInput = document.getElementById('dateInput');
+        const addWeightBtn = document.getElementById('addWeight');
+        const clearDataBtn = document.getElementById('clearData');
+        const weightList = document.getElementById('weightList');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const successMessage = document.getElementById('successMessage');
+        const currentWeightEl = document.getElementById('currentWeight');
+        const lowestWeightEl = document.getElementById('lowestWeight');
+        const highestWeightEl = document.getElementById('highestWeight');
+        const averageWeightEl = document.getElementById('averageWeight');
+
+        let weights = JSON.parse(localStorage.getItem('weights')) || [];
+        let chart;
+
+        function saveWeights() {
+            localStorage.setItem('weights', JSON.stringify(weights));
+        }
+
+        function displayWeights() {
+            weightList.innerHTML = '';
+            weights.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((entry, index) => {
+                const li = document.createElement('li');
+                li.className = 'weight-item';
+                li.innerHTML = `
+                    <span>${entry.weight} kg - ${formatDate(entry.date)}</span>
+                    <button onclick="removeWeight(${index})">Remove</button>
+                `;
+                weightList.appendChild(li);
+            });
+            updateChart();
+            updateStats();
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        function addWeight() {
+            const weight = parseFloat(weightInput.value);
+            const date = dateInput.value;
+            if (weight && weight > 0 && date) {
+                weights.push({ weight, date });
+                saveWeights();
+                displayWeights();
+                weightInput.value = '';
+                dateInput.value = '';
+                showSuccessMessage();
+            }
+        }
+
+        function showSuccessMessage() {
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        function removeWeight(index) {
+            weights.splice(index, 1);
+            saveWeights();
+            displayWeights();
+        }
+
+        function clearData() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                weights = [];
+                saveWeights();
+                displayWeights();
+            }
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('chart').getContext('2d');
+            const sortedWeights = weights.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedWeights.map(entry => formatDate(entry.date)),
+                    datasets: [{
+                        label: 'Weight (kg)',
+                        data: sortedWeights.map(entry => entry.weight),
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--chart-color').trim(),
+                        backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Weight (kg)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateStats() {
+            if (weights.length > 0) {
+                const sortedWeights = weights.map(w => w.weight).sort((a, b) => a - b);
+                const currentWeight = weights[weights.length - 1].weight;
+                const lowestWeight = sortedWeights[0];
+                const highestWeight = sortedWeights[sortedWeights.length - 1];
+                const averageWeight = sortedWeights.reduce((a, b) => a + b) / sortedWeights.length;
+
+                currentWeightEl.textContent = `${currentWeight.toFixed(1)} kg`;
+                lowestWeightEl.textContent = `${lowestWeight.toFixed(1)} kg`;
+                highestWeightEl.textContent = `${highestWeight.toFixed(1)} kg`;
+                averageWeightEl.textContent = `${averageWeight.toFixed(1)} kg`;
+            } else {
+                currentWeightEl.textContent = '-';
+                lowestWeightEl.textContent = '-';
+                highestWeightEl.textContent = '-';
+                averageWeightEl.textContent = '-';
+            }
+        }
+
+        function changeTheme(color) {
+            document.documentElement.style.setProperty('--primary-color', color);
+            document.documentElement.style.setProperty('--chart-color', color);
+            updateChart();
+        }
+
+        addWeightBtn.addEventListener('click', addWeight);
+        clearDataBtn.addEventListener('click', clearData);
+        weightInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addWeight();
+            }
+        });
+
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                changeTheme(option.dataset.color);
+            });
+        });
+
+        // Set today's date as the default for the date input
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+
+        displayWeights();
+    </script>
+</body>
+</html>
